@@ -544,6 +544,12 @@ public class GeoUtils {
             case pluscode:
                 PluscodeHash.validatePrecision(precision);
                 break;
+            case maptile:
+                if (precision < 0 || precision > GeoHashUtils.MAX_ZOOM) {
+                    throw new IllegalArgumentException("Invalid geohash maptile aggregation precision of " + precision +
+                        ". Must be between 0 and " + GeoHashUtils.MAX_ZOOM + ".");
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown type " + type.toString());
         }

@@ -257,6 +257,9 @@ public class GeoGridAggregationBuilder extends ValuesSourceAggregationBuilder<Va
                         case pluscode:
                             values[i] = PluscodeHash.latLngToPluscodeHash(target.getLon(), target.getLat(), precision);
                             break;
+                        case maptile:
+                            values[i] = GeoHashUtils.geoToMapTileHash(target.getLon(), target.getLat(), precision);
+                            break;
                         default:
                             throw new IllegalArgumentException();
                     }
