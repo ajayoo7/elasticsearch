@@ -25,6 +25,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.geo.GeoHashUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.GeoUtils;
+import org.elasticsearch.common.geo.PluscodeHash;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
 import org.elasticsearch.common.xcontent.ObjectParser;
@@ -254,7 +255,7 @@ public class GeoGridAggregationBuilder extends ValuesSourceAggregationBuilder<Va
                                 precision);
                             break;
                         case pluscode:
-                            values[i] = GeoHashUtils.latLngToPluscodeHash(target.getLon(), target.getLat(), precision);
+                            values[i] = PluscodeHash.latLngToPluscodeHash(target.getLon(), target.getLat(), precision);
                             break;
                         default:
                             throw new IllegalArgumentException();

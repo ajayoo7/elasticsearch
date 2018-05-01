@@ -59,33 +59,6 @@ public class GeoHashTests extends ESTestCase {
         }
     }
 
-    public void testPluscodeAsLongRoutines() {
-        final GeoPoint expected = new GeoPoint();
-        final GeoPoint actual = new GeoPoint();
-        //Ensure that for all points at all supported levels of precision
-        // that the long encoding of a geohash is compatible with its
-        // String based counterpart
-        for (double lat = -90; lat < 90; lat++) {
-            for (double lng = -180; lng < 180; lng++) {
-                for (int p = 4; p <= 14; p++) {
-                    // code must be even if less than 10 digits
-                    if (p < 10 && p % 2 == 1) continue;
-
-                    long geoAsLong = GeoHashUtils.latLngToPluscodeHash(lng, lat, p);
-
-                    // string encode from geohashlong encoded location
-                    String geohashFromLong = GeoHashUtils.decodePluscode(geoAsLong);
-
-                    // string encode from full res lat lon
-                    String geohash = GeoHashUtils.latLngToPluscode(lng, lat, p);
-
-                    // ensure both strings are the same
-                    assertEquals(geohash, geohashFromLong);
-                }
-            }
-        }
-    }
-
     public void testBboxFromHash() {
         String hash = randomGeohash(1, 12);
         int level = hash.length();

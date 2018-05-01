@@ -18,13 +18,11 @@
  */
 package org.elasticsearch.common.geo;
 
-import com.google.openlocationcode.OpenLocationCode;
 import org.apache.lucene.geo.Rectangle;
 import org.apache.lucene.spatial.util.MortonEncoder;
 import org.apache.lucene.util.BitUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -353,109 +351,4 @@ public class GeoHashUtils {
     public static final double decodeLongitude(final String geohash) {
         return decodeLongitude(mortonEncode(geohash));
     }
-
-    /* ************************************ plus code support ************************************ */
-
-    /**
-     * Same as official plus code alphabet, but also includes "0" to preserve the code length
-     */
-    private static final String PLUSCODE_EXT_ALPHABET = "023456789CFGHJMPQRVWX";
-
-    /**
-     * Length of the extended alphabet (21)
-     */
-    private static final int PLUSCODE_EXT_ALPHABET_SIZE = PLUSCODE_EXT_ALPHABET.length();
-
-    /**
-     * Maximum plus code length (without the '+' symbol) that we support
-     * 21^14 is the largest value that can fit within a long value
-     */
-    public static final int PLUSCODE_MAX_LENGTH = 14;
-
-    private static final int[] PLUSCODE_ALPHABET_LOOKUP;
-
-    static {
-        // Initialize PLUSCODE_ALPHABET_LOOKUP for quick O(1) lookup of alphabet letters -> int
-        // There is some wasted space (first 32 values, and a few gaps), but results is slightly better perf
-        int size = PLUSCODE_EXT_ALPHABET_SIZE;
-        PLUSCODE_ALPHABET_LOOKUP = new int[PLUSCODE_EXT_ALPHABET.charAt(size - 1) + 1];
-        Arrays.fill(PLUSCODE_ALPHABET_LOOKUP, -1);
-        for (int i = 0; i < size; i++) {
-            PLUSCODE_ALPHABET_LOOKUP[PLUSCODE_EXT_ALPHABET.charAt(i)] = i;
-        }
-    }
-
-    /**
-     * Convert latitude+longitude to the plus code of a given length
-     */
-    public static String latLngToPluscode(final double lon, final double lat, final int codeLength) {
-        return new OpenLocationCode(lat, lon, codeLength).getCode();
-    }
-
-    /**
-     * Convert latitude+longitude to a hash value with a given precision.
-     * Internally, the hash is created by converting plus code string into a base-21 number.
-     * Plus codes use base 20, but they get appended with 0s if the precision is low.
-     * Using base-21 allows us to preserve those zeroes
-     */
-    public static long latLngToPluscodeHash(final double lon, final double lat, final int codeLength) {
-
-        String pluscode = latLngToPluscode(lon, lat, codeLength);
-
-        long result = 0;
-        for (int i = 0; i < pluscode.length(); i++) {
-            char ch = pluscode.charAt(i);
-            if (ch == '+') continue;
-            int pos = PLUSCODE_ALPHABET_LOOKUP[ch];
-            if (pos < 0) {
-                throw new IllegalArgumentException("Character '" + ch + "' is not a valid plus code");
-            }
-            result = result * PLUSCODE_EXT_ALPHABET_SIZE + pos;
-        }
-        return result;
-    }
-
-    /**
-     * Decode plus code hash back into a string
-     */
-    public static String decodePluscode(final long hash) {
-
-        StringBuilder result = new StringBuilder(PLUSCODE_MAX_LENGTH + 1);
-
-        long rest = hash;
-        while (rest > 0) {
-            long val = rest % PLUSCODE_EXT_ALPHABET_SIZE;
-            result.append(PLUSCODE_EXT_ALPHABET.charAt((int) val));
-            rest = rest / PLUSCODE_EXT_ALPHABET_SIZE;
-        }
-
-        result.reverse();
-        result.insert(8, '+');
-
-        return result.toString();
-    }
-
-    /**
-     * Computes the bounding box coordinates from a given geohash
-     *
-     * @param hashcode Geohash of the defined cell
-     * @return Rectangle rectangle defining the bounding box
-     */
-    public static Rectangle bboxFromPluscode(final long hashcode) {
-        return bboxFromPluscode(decodePluscode(hashcode));
-    }
-
-    /**
-     * Computes the bounding box coordinates from a given geohash
-     *
-     * @param pluscode Geohash of the defined cell
-     * @return Rectangle rectangle defining the bounding box
-     */
-    public static Rectangle bboxFromPluscode(final String pluscode) {
-        OpenLocationCode.CodeArea area = new OpenLocationCode(pluscode).decode();
-
-        return new Rectangle(area.getSouthLatitude(), area.getNorthLatitude(),
-            area.getWestLongitude(), area.getEastLongitude());
-    }
-
 }

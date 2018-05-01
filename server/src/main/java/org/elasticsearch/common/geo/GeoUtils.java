@@ -19,7 +19,6 @@
 
 package org.elasticsearch.common.geo;
 
-import com.google.openlocationcode.OpenLocationCode;
 import org.apache.lucene.geo.Rectangle;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.QuadPrefixTree;
@@ -44,8 +43,6 @@ import org.elasticsearch.search.aggregations.bucket.geogrid.GeoHashType;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.elasticsearch.common.geo.GeoHashUtils.PLUSCODE_MAX_LENGTH;
 
 public class GeoUtils {
 
@@ -545,12 +542,7 @@ public class GeoUtils {
                 }
                 break;
             case pluscode:
-                if ((precision < 4) || (precision > PLUSCODE_MAX_LENGTH) ||
-                    (precision < OpenLocationCode.CODE_PRECISION_NORMAL && precision % 2 == 1)
-                ) {
-                    throw new IllegalArgumentException("Invalid geohash pluscode aggregation precision of " + precision
-                        + ". Must be between 4 and " + PLUSCODE_MAX_LENGTH + " , and must be even if less than 8.");
-                }
+                PluscodeHash.validatePrecision(precision);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown type " + type.toString());
