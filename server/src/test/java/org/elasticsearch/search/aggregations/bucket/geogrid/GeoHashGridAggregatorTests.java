@@ -28,6 +28,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.elasticsearch.common.CheckedConsumer;
+import org.elasticsearch.common.geo.MaptileHash;
 import org.elasticsearch.common.geo.PluscodeHash;
 import org.elasticsearch.index.mapper.GeoPointFieldMapper;
 import org.elasticsearch.index.mapper.MappedFieldType;
@@ -81,6 +82,14 @@ public class GeoHashGridAggregatorTests extends AggregatorTestCase {
 
         testWithSeveralDocs(GeoHashType.pluscode, precision, (lng, lat) -> {
             return PluscodeHash.latLngToPluscode(lng, lat, precision);
+        });
+    }
+
+    public void testMaptileWithSeveralDocs() throws IOException {
+        final int precision = randomIntBetween(0, 26);
+
+        testWithSeveralDocs(GeoHashType.maptile, precision, (lng, lat) -> {
+            return MaptileHash.geoTileMapHashToKey(MaptileHash.geoToMapTileHash(lng, lat, precision));
         });
     }
 

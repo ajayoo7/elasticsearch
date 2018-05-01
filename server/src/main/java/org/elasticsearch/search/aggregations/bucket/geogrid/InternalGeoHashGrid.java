@@ -21,6 +21,7 @@ package org.elasticsearch.search.aggregations.bucket.geogrid;
 import org.apache.lucene.util.PriorityQueue;
 import org.elasticsearch.common.geo.GeoHashUtils;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.geo.MaptileHash;
 import org.elasticsearch.common.geo.PluscodeHash;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
@@ -88,7 +89,7 @@ public class InternalGeoHashGrid extends InternalMultiBucketAggregation<Internal
                 case pluscode:
                     return PluscodeHash.decodePluscode(geohashAsLong);
                 case maptile:
-                    return GeoHashUtils.geoTileMapHashToKey(geohashAsLong);
+                    return MaptileHash.geoTileMapHashToKey(geohashAsLong);
                 default:
                     throw new IllegalArgumentException();
             }
@@ -102,7 +103,7 @@ public class InternalGeoHashGrid extends InternalMultiBucketAggregation<Internal
                 case pluscode:
                     return PluscodeHash.bboxFromPluscode(geohashAsLong);
                 case maptile:
-                    return GeoHashUtils.bboxFromTileIndex(geohashAsLong);
+                    return MaptileHash.bboxFromTileIndex(geohashAsLong);
                 default:
                     throw new IllegalArgumentException();
             }
