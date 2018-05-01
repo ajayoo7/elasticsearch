@@ -20,6 +20,8 @@ package org.elasticsearch.common.geo;
 
 import org.elasticsearch.test.ESTestCase;
 
+import static com.google.openlocationcode.OpenLocationCode.CODE_PRECISION_NORMAL;
+
 /**
  * Tests for {@link PluscodeHash}
  */
@@ -34,7 +36,7 @@ public class PluscodeHashTests extends ESTestCase {
             for (double lng = -180; lng < 180; lng++) {
                 for (int p = 4; p <= 14; p++) {
                     // code must be even if less than 10 digits
-                    if (p < 10 && p % 2 == 1) continue;
+                    if (p < CODE_PRECISION_NORMAL && p % 2 == 1) continue;
 
                     long geoAsLong = PluscodeHash.latLngToPluscodeHash(lng, lat, p);
 
